@@ -1,13 +1,24 @@
 import AudioRecorder from "./AudioRecorder";
 import ConversationInfo from "./ConversationInfo";
+import ConversationHistory from "./ConversationHistory";
+//import { get, post } from "axios";
 import { useState } from "react";
 
 const ConversationPage = ({ options, onReturn }) => {
   const [messages, setMessages] = useState([]);
 
-  const updateAudio = (audio) => {
-    setMessages([...messages, audio]);
-    console.log(audio);
+  const updateAudio = async (audioBlob) => {
+    setMessages([...messages, URL.createObjectURL(audioBlob)]);
+
+    // Convert blob audio to base64
+    const reader = new FileReader();
+    reader.readAsDataURL(audioBlob);
+    reader.onloadend = function () {
+      const base64 = reader.result.split(",")[1];
+    };
+
+    //post("http://127.0.0.1:5000/audio-to-text");
+    console.log(audioBlob);
   };
 
   const downloadConversation = () => {
@@ -22,30 +33,9 @@ const ConversationPage = ({ options, onReturn }) => {
         downloadConversation={downloadConversation}
       />
 
-      <div className="flex-grow bg-white overflow-auto p-4">
-        {/* Your mock conversation components go here */}
-        <div className="mb-4">
-          <span className="font-bold">User:</span> Hello, how are you?
-        </div>
-        <div className="mb-4">
-          <span className="font-bold">Bot:</span> I'm doing well, thank you! How
-          can I help you today?
-        </div>
-        <div className="mb-4">
-          <span className="font-bold">Bot:</span> I'm doing well, thank you! How
-          can I help you today?
-        </div>
-        {/* Add more mock conversation messages here */}
-        {messages.map((message) => {
-          return (
-            <div className="mb-4 flex items-center gap-x-2">
-              <span className="font-bold">User:</span>
-              <audio src={message} controls></audio>
-            </div>
-          );
-        })}
-      </div>
-      <div className="bg-gray-100 h-1/4 p-4">
+      <ConversationHistory messages={messages} />
+
+      <div className="bg-gray-100 h-1/6 p-4 flex flex-col items-center justify-center">
         <AudioRecorder updateAudio={updateAudio} />
       </div>
     </div>

@@ -6,7 +6,7 @@
 
 .slide-conversation-enter-active {
   top: 0;
-  transition: top 300ms ease-out;
+  transition: top 300ms ease-in-out;
 }
 
 .slide-conversation-exit {
@@ -17,7 +17,7 @@
 
 .slide-conversation-exit-active {
   top: 100%;
-  transition: top 300ms ease-out;
+  transition: top 300ms ease-in-out;
 }
 
 .slide-entry-enter {
@@ -28,7 +28,7 @@
 
 .slide-entry-enter-active {
   top: 0;
-  transition: top 300ms ease-out;
+  transition: top 300ms ease-in-out;
 }
 
 .slide-entry-exit {
@@ -39,5 +39,5 @@
 
 .slide-entry-exit-active {
   top: -100%;
-  transition: top 300ms ease-out;
+  transition: top 300ms ease-in-out;
 }

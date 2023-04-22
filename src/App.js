@@ -7,13 +7,13 @@ import "./AppStyles.css";
 
 function App() {
   const [currentPage, setCurrentPage] = useState("entry");
-  const [selectedOptions, setSelectedOptions] = useState({
-    language: "US",
-    scenario: "Waiter",
-  });
+  const [selectedOptions, setSelectedOptions] = useState({});
 
   const handleOptionsSelect = (options) => {
     setSelectedOptions(options);
+
+    /* REQUEST TO CHATGPT API -> TEXT TO SPEECH API GOES HERE */
+
     setCurrentPage("conversation");
   };
 

@@ -4,14 +4,25 @@ import {
   CheckIcon,
   ChevronDownIcon,
   PaperAirplaneIcon,
+  ArrowRightIcon,
 } from "@heroicons/react/20/solid";
-import { US, ES, FR, DE } from "country-flag-icons/react/3x2";
+import { US, ES, FR, DE, IT, CN, JP } from "country-flag-icons/react/3x2";
+import "./EntryPage.css";
 
 const languages = [
   { flag: US, name: "English (United States)" },
   { flag: ES, name: "Spanish" },
   { flag: FR, name: "French" },
   { flag: DE, name: "German" },
+  { flag: IT, name: "Italian" },
+  { flag: CN, name: "Chinese (Mandarin)" },
+  { flag: JP, name: "Japanese" },
+];
+
+const scenarioTexts = [
+  "You're a waiter and I'm a customer who is ordering from you at a restaurant.",
+  "I'm lost in a new country and I'm asking you for directions to my hotel.",
+  "You're selling souvenirs, and I'd like to buy one from you to take home.",
 ];
 
 const EntryPage = (props) => {
@@ -25,9 +36,16 @@ const EntryPage = (props) => {
     setScenario(event.target.value);
   };
 
+  const handlePremadeScenario = (text) => {
+    setScenario(text);
+  };
+
   return (
-    <div className="flex flex-col py-24 items-center gap-y-24">
-      <div>
+    <div className="flex flex-col py-24 items-center">
+      <h1 className="text-3xl font-bold">
+        The best way to learn a new language.
+      </h1>
+      <div className="mt-12">
         <Listbox
           as="div"
           value={selected}
@@ -86,27 +104,50 @@ const EntryPage = (props) => {
         </Listbox>
       </div>
 
-      <div className="w-full max-w-md">
+      <div
+        className={`w-full ${
+          selected.flag ? "visible" : ""
+        } slide-up mt-12 flex flex-col items-center`}
+      >
         <label
           htmlFor="scenario"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-base font-medium text-gray-700"
         >
-          Scenario:
+          Now, type in a scenario you'd like to practice...
         </label>
         <textarea
           id="scenario"
           name="scenario"
           rows="5"
-          className="mt-1 block w-full bg-white resize-none focus:bg-white focus:ring-indigo-500 focus:border-indigo-500 border border-gray-300 rounded-md shadow-sm py-3 px-4 text-sm text-gray-900 placeholder-gray-400"
+          className="mt-1 block w-full max-w-md bg-white resize-none focus:bg-white focus:ring-indigo-500 focus:border-indigo-500 border border-gray-300 rounded-md shadow-sm py-3 px-4 text-sm text-gray-900 placeholder-gray-400"
           placeholder="Enter your scenario here..."
           onChange={handleScenarioChange}
+          value={scenario}
         ></textarea>
+
+        <div className="text-base font-medium text-gray-700 mt-8">
+          or choose from one of our examples:
+        </div>
+        <div className="flex flex-col mt-2 gap-y-2">
+          {scenarioTexts.map((text) => (
+            <button
+              className="w-full py-2 px-6 text-base bg-gray-200 rounded"
+              onClick={() => handlePremadeScenario(text)}
+            >
+              {text}{" "}
+              <span>
+                <ArrowRightIcon className="w-4 h-4 inline" />
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div>
         <button
           type="submit"
-          className="mt-4 bg-green-700 duration-100 enabled:hover:bg-green-800 text-white font-semibold py-2 px-4 rounded inline-flex flex items-center disabled:opacity-50"
+          className={`mt-12 bg-green-700 hover:duration-100 enabled:hover:bg-green-800 text-white font-semibold py-2 px-4 rounded inline-flex flex items-center
+            btn-slide-up ${scenario === "" ? "" : "visible"}`}
           onClick={() => {
             props.onOptionSelect({
               language: selected.name,
@@ -114,7 +155,6 @@ const EntryPage = (props) => {
               scenario: scenario,
             });
           }}
-          disabled={!scenario}
         >
           <PaperAirplaneIcon className="w-4 h-4 mr-2" />
           <span>Submit</span>
