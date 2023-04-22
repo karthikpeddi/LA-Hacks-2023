@@ -1,4 +1,5 @@
 import AudioRecorder from "./AudioRecorder";
+import ConversationInfo from "./ConversationInfo";
 import { useState } from "react";
 
 const ConversationPage = ({ options }) => {
@@ -9,10 +10,8 @@ const ConversationPage = ({ options }) => {
   };
   return (
     <div className="h-screen flex flex-col">
-      <div className="bg-gray-200 p-4">
-        <h1 className="text-xl font-bold mb-2">Language: {options.language}</h1>
-        <h2 className="text-lg">Scenario: {options.scenario}</h2>
-      </div>
+      <ConversationInfo options={options} />
+
       <div className="flex-grow bg-white overflow-auto p-4">
         {/* Your mock conversation components go here */}
         <div className="mb-4">

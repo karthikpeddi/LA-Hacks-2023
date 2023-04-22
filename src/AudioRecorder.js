@@ -1,5 +1,5 @@
-// AudioRecorder.js
 import { useState, useRef, useEffect } from "react";
+import { MicrophoneIcon, StopIcon } from "@heroicons/react/20/solid";
 import { WaveSurfer } from "wavesurfer-react";
 
 const AudioRecorder = ({ updateAudio }) => {
@@ -11,7 +11,6 @@ const AudioRecorder = ({ updateAudio }) => {
   const mediaRecorder = useRef(null);
   const [isRecording, setIsRecording] = useState(false);
   const [audioChunks, setAudioChunks] = useState([]);
-  const [audio, setAudio] = useState(null);
 
   const getMicrophonePermission = async () => {
     const streamData = await navigator.mediaDevices.getUserMedia({
@@ -22,13 +21,14 @@ const AudioRecorder = ({ updateAudio }) => {
     setStream(streamData);
   };
 
+  useEffect(() => {
+    getMicrophonePermission();
+  }, []);
+
   const startRecording = async () => {
     setIsRecording(true);
-    //create new Media recorder instance using the stream
     const media = new MediaRecorder(stream, { type: mimeType });
-    //set the MediaRecorder instance to the mediaRecorder ref
     mediaRecorder.current = media;
-    //invokes the start method to start the recording process
     mediaRecorder.current.start();
     let localAudioChunks = [];
     mediaRecorder.current.ondataavailable = (event) => {
@@ -44,11 +44,8 @@ const AudioRecorder = ({ updateAudio }) => {
     //stops the recording instance
     mediaRecorder.current.stop();
     mediaRecorder.current.onstop = () => {
-      //creates a blob file from the audiochunks data
       const audioBlob = new Blob(audioChunks, { type: mimeType });
-      //creates a playable URL from the blob file.
       const audioUrl = URL.createObjectURL(audioBlob);
-      setAudio(audioUrl);
       updateAudio(audioUrl);
       setAudioChunks([]);
     };
@@ -56,19 +53,12 @@ const AudioRecorder = ({ updateAudio }) => {
 
   return (
     <div>
-      {!permission && (
-        <button
-          onClick={getMicrophonePermission}
-          className="bg-green-500 text-white px-4 py-2 rounded"
-        >
-          Get Microphone
-        </button>
-      )}
       {permission && !isRecording && (
         <button
           onClick={startRecording}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
+          className="bg-red-500 duration-100 hover:bg-red-600 flex items-center text-white font-semibold px-4 py-2 rounded"
         >
+          <MicrophoneIcon className="w-5 h-5 mr-2" />
           Record
         </button>
       )}
@@ -76,8 +66,9 @@ const AudioRecorder = ({ updateAudio }) => {
         <>
           <button
             onClick={stopRecording}
-            className="bg-red-500 text-white px-4 py-2 rounded"
+            className="bg-red-600 duration-100 hover:bg-red-700 flex items-center font-semibold text-white px-4 py-2 rounded"
           >
+            <StopIcon className="w-5 h-5 mr-2" />
             Stop
           </button>
         </>

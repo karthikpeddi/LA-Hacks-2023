@@ -110,6 +110,7 @@ const EntryPage = (props) => {
           onClick={() => {
             props.onOptionSelect({
               language: selected.name,
+              flag: selected.flag,
               scenario: scenario,
             });
           }}
