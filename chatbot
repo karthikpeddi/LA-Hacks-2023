@@ -2,7 +2,7 @@ import openai
 import json
 
 # API key
-openai.api_key = "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"
+openai.api_key = "API key -- ask alice"
 
 # parameters for API req
 model_engine = "davinci-x"
