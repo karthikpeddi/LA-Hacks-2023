@@ -1,10 +1,13 @@
 import os
 from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS, cross_origin
 from google.cloud import speech_v1p1beta1 as speech
 from google.cloud import texttospeech_v1 as texttospeech
 from io import BytesIO
 
 app = Flask(__name__)
+CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 # Set the path to the JSON key file
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'phrasal-indexer-384507-984f378d8298.json'
@@ -14,11 +17,14 @@ speech_client = speech.SpeechClient()
 texttospeech_client = texttospeech.TextToSpeechClient()
 
 @app.route('/audio-to-text', methods=['POST'])
+@cross_origin()
 def audio_to_text():
-    audio_file = request.files['audio']
-    language_code = request.form.get('language', 'en-US')
+    data = request.get_json()
 
-    audio = speech.RecognitionAudio(content=audio_file.read())
+    audio_base64 = data['audio']
+    language_code = data.get('language', 'en-US')
+
+    audio = speech.RecognitionAudio(content=audio_base64.read())
     config = speech.RecognitionConfig(
         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
         language_code=language_code
