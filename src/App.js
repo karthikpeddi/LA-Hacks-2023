@@ -1,26 +1,33 @@
-import logo from "./logo.svg";
+import { useState } from "react";
+import EntryPage from "./EntryPage";
+import ConversationPage from "./ConversationPage";
 import "./App.css";
 
 function App() {
+  const [currentPage, setCurrentPage] = useState("entry");
+  const [selectedOptions, setSelectedOptions] = useState({
+    language: "US",
+    scenario: "Waiter",
+  });
+
+  const handleOptionsSelect = (options) => {
+    setSelectedOptions(options);
+    setCurrentPage("conversation");
+  };
+
+  const handleReturn = () => {
+    setCurrentPage("entry");
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <div className="text-xl">
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-        </div>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      {currentPage === "entry" && (
+        <EntryPage onOptionSelect={handleOptionsSelect} />
+      )}
+      {currentPage === "conversation" && (
+        <ConversationPage options={selectedOptions} onReturn={handleReturn} />
+      )}
+    </>
   );
 }
 
