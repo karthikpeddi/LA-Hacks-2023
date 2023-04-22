@@ -24,3 +24,7 @@ yarn-error.log*
 
 # tailwind
 /src/App.css
+
+# pyenv
+.python-version
+*.pyc
