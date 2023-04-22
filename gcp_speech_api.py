@@ -1,10 +1,15 @@
 import os
 from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS, cross_origin
 from google.cloud import speech_v1p1beta1 as speech
 from google.cloud import texttospeech_v1 as texttospeech
 from io import BytesIO
+import base64
+import ffmpeg
 
 app = Flask(__name__)
+CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 # Set the path to the JSON key file
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'phrasal-indexer-384507-984f378d8298.json'
@@ -14,13 +19,24 @@ speech_client = speech.SpeechClient()
 texttospeech_client = texttospeech.TextToSpeechClient()
 
 @app.route('/audio-to-text', methods=['POST'])
+@cross_origin()
 def audio_to_text():
-    audio_file = request.files['audio']
-    language_code = request.form.get('language', 'en-US')
+    data = request.get_json()
 
-    audio = speech.RecognitionAudio(content=audio_file.read())
+    audio_webm_base64 = data['audio']
+    decoded_webm = base64.b64decode(audio_webm_base64)
+    webm_file = f'./audio/webm/test{audio_webm_base64[0]}.webm'
+    with open(webm_file, 'wb') as wfile:
+        wfile.write(decoded_webm)
+
+    ffmpeg.input(webm_file).output(f'./audio/flac/test{audio_webm_base64[0]}.flac').run(overwrite_output=True)
+    language_code = data.get('language', 'en-US')
+
+    with open(f'./audio/flac/test{audio_webm_base64[0]}.flac', 'rb') as audio_file:
+        content = audio_file.read()
+
+    audio = speech.RecognitionAudio(content=content)
     config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
         language_code=language_code
     )
 

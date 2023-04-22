@@ -6,17 +6,17 @@ import {
   PaperAirplaneIcon,
   ArrowRightIcon,
 } from "@heroicons/react/20/solid";
-import { US, ES, FR, DE, IT, CN, JP } from "country-flag-icons/react/3x2";
+import { US, MX, FR, DE, IT, CN, JP } from "country-flag-icons/react/3x2";
 import "./EntryPage.css";
 
 const languages = [
-  { flag: US, name: "English (United States)" },
-  { flag: ES, name: "Spanish" },
-  { flag: FR, name: "French" },
-  { flag: DE, name: "German" },
-  { flag: IT, name: "Italian" },
-  { flag: CN, name: "Chinese (Mandarin)" },
-  { flag: JP, name: "Japanese" },
+  { flag: US, name: "English (United States)", code: "en-US" },
+  { flag: MX, name: "Spanish (Mexico)", code: "es-MX" },
+  { flag: FR, name: "French", code: "fr-FR" },
+  { flag: DE, name: "German", code: "de-DE" },
+  { flag: IT, name: "Italian", code: "it-IT" },
+  { flag: CN, name: "Chinese (Mandarin)", code: "zh (cmn-Hans-CN)" },
+  { flag: JP, name: "Japanese", code: "ja-JP" },
 ];
 
 const scenarioTexts = [
@@ -151,6 +151,7 @@ const EntryPage = (props) => {
           onClick={() => {
             props.onOptionSelect({
               language: selected.name,
+              languageCode: selected.code,
               flag: selected.flag,
               scenario: scenario,
             });

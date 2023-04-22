@@ -29,3 +29,6 @@ yarn-error.log*
 # pyenv
 .python-version
 *.pyc
+
+# audio conversion purposes
+/audio
