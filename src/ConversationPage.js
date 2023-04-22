@@ -4,6 +4,33 @@ import ConversationHistory from "./ConversationHistory";
 //import { get, post } from "axios";
 import { useState } from "react";
 
+async function sendAudioToServer(base64, language) {
+  const data = {
+    audio: base64,
+    language: language,
+  };
+
+  // Send the POST request to the Flask server as a webm base64
+  try {
+    const response = await fetch("http://127.0.0.1:5000/audio-to-text", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      console.error("Error in sending the request:", response.statusText);
+    }
+  } catch (error) {
+    console.error("Error in sending the request:", error);
+  }
+}
+
 const ConversationPage = ({ options, onReturn }) => {
   const [messages, setMessages] = useState([]);
 
@@ -15,9 +42,11 @@ const ConversationPage = ({ options, onReturn }) => {
     reader.readAsDataURL(audioBlob);
     reader.onloadend = function () {
       const base64 = reader.result.split(",")[1];
+      console.log(base64);
+      const responseData = sendAudioToServer(base64, options.languageCode);
+      console.log(responseData);
     };
 
-    //post("http://127.0.0.1:5000/audio-to-text");
     console.log(audioBlob);
   };
 
