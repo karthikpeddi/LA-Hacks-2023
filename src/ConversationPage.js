@@ -2,15 +2,25 @@ import AudioRecorder from "./AudioRecorder";
 import ConversationInfo from "./ConversationInfo";
 import { useState } from "react";
 
-const ConversationPage = ({ options }) => {
+const ConversationPage = ({ options, onReturn }) => {
   const [messages, setMessages] = useState([]);
+
   const updateAudio = (audio) => {
     setMessages([...messages, audio]);
     console.log(audio);
   };
+
+  const downloadConversation = () => {
+    console.log("Downloaded conversation");
+  };
+
   return (
     <div className="h-screen flex flex-col">
-      <ConversationInfo options={options} />
+      <ConversationInfo
+        options={options}
+        restartConversation={onReturn}
+        downloadConversation={downloadConversation}
+      />
 
       <div className="flex-grow bg-white overflow-auto p-4">
         {/* Your mock conversation components go here */}

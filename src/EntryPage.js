@@ -88,7 +88,7 @@ const EntryPage = (props) => {
 
       <div className="w-full max-w-md">
         <label
-          for="scenario"
+          htmlFor="scenario"
           className="block text-sm font-medium text-gray-700"
         >
           Scenario:

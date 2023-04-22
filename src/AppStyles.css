@@ -1,0 +1,43 @@
+.slide-conversation-enter {
+  position: absolute;
+  top: 100%;
+  width: 100%;
+}
+
+.slide-conversation-enter-active {
+  top: 0;
+  transition: top 300ms ease-out;
+}
+
+.slide-conversation-exit {
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.slide-conversation-exit-active {
+  top: 100%;
+  transition: top 300ms ease-out;
+}
+
+.slide-entry-enter {
+  position: absolute;
+  top: -100%;
+  width: 100%;
+}
+
+.slide-entry-enter-active {
+  top: 0;
+  transition: top 300ms ease-out;
+}
+
+.slide-entry-exit {
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.slide-entry-exit-active {
+  top: -100%;
+  transition: top 300ms ease-out;
+}
