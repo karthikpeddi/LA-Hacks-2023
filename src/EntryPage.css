@@ -9,6 +9,17 @@
   transform: translateY(0);
 }
 
+.slide-up-delay {
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 0.6s ease-in 0.6s, transform 0.8s ease-in-out 0.6s;
+}
+
+.slide-up-delay.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .btn-slide-up {
   opacity: 0;
   transform: translateY(100%);
@@ -18,4 +29,12 @@
 .btn-slide-up.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+.prompt-btn {
+  background-color: rgb(229 231 235);
+}
+
+.prompt-btn:hover {
+  background-color: rgb(209 213 219);
 }

@@ -104,49 +104,58 @@ const EntryPage = (props) => {
         </Listbox>
       </div>
 
-      <div
-        className={`w-full ${
-          selected.flag ? "visible" : ""
-        } slide-up mt-12 flex flex-col items-center`}
-      >
-        <label
-          htmlFor="scenario"
-          className="block text-base font-medium text-gray-700"
+      <div className={`w-full mt-12 flex flex-col items-center`}>
+        <div
+          className={`w-full max-w-md ${
+            selected.flag ? "visible" : ""
+          } slide-up`}
         >
-          Now, type in a scenario you'd like to practice...
-        </label>
-        <textarea
-          id="scenario"
-          name="scenario"
-          rows="5"
-          className="mt-1 block w-full max-w-md bg-white resize-none focus:bg-white focus:ring-indigo-500 focus:border-indigo-500 border border-gray-300 rounded-md shadow-sm py-3 px-4 text-sm text-gray-900 placeholder-gray-400"
-          placeholder="Enter your scenario here..."
-          onChange={handleScenarioChange}
-          value={scenario}
-        ></textarea>
-
-        <div className="text-base font-medium text-gray-700 mt-8">
-          or choose from one of our examples:
+          <label
+            htmlFor="scenario"
+            className="block text-base font-medium text-gray-700"
+          >
+            Now, type in a scenario you'd like to practice...
+          </label>
+          <textarea
+            id="scenario"
+            name="scenario"
+            rows="5"
+            className="mt-1 block w-full max-w-md bg-white resize-none focus:bg-white focus:ring-indigo-500 focus:border-indigo-500
+            border border-gray-300 rounded-md shadow-sm py-3 px-4 text-sm text-gray-900 placeholder-gray-400"
+            placeholder="Enter your scenario here..."
+            onChange={handleScenarioChange}
+            value={scenario}
+          ></textarea>
         </div>
-        <div className="flex flex-col mt-2 gap-y-2">
-          {scenarioTexts.map((text) => (
-            <button
-              className="w-full py-2 px-6 text-base bg-gray-200 rounded"
-              onClick={() => handlePremadeScenario(text)}
-            >
-              {text}{" "}
-              <span>
-                <ArrowRightIcon className="w-4 h-4 inline" />
-              </span>
-            </button>
-          ))}
+
+        <div
+          className={`flex flex-col items-center ${
+            selected.flag ? "visible" : ""
+          } slide-up-delay`}
+        >
+          <div className="text-base font-medium text-gray-700 mt-8">
+            or choose from one of our examples:
+          </div>
+          <div className="flex flex-col mt-2 gap-y-2">
+            {scenarioTexts.map((text) => (
+              <button
+                className="w-full py-2 px-6 text-base duration-100 rounded prompt-btn"
+                onClick={() => handlePremadeScenario(text)}
+              >
+                {text}{" "}
+                <span>
+                  <ArrowRightIcon className="w-4 h-4 inline" />
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       <div>
         <button
           type="submit"
-          className={`mt-12 bg-green-700 hover:duration-100 enabled:hover:bg-green-800 text-white font-semibold py-2 px-4 rounded inline-flex flex items-center
+          className={`mt-12 bg-blue-700 hover:duration-100 enabled:hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded inline-flex flex items-center
             btn-slide-up ${scenario === "" ? "" : "visible"}`}
           onClick={() => {
             props.onOptionSelect({
@@ -158,7 +167,7 @@ const EntryPage = (props) => {
           }}
         >
           <PaperAirplaneIcon className="w-4 h-4 mr-2" />
-          <span>Submit</span>
+          <span>Start Chatting!</span>
         </button>
       </div>
     </div>
