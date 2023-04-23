@@ -60,6 +60,7 @@ async function getAudioFromServer(text, language) {
 const ConversationPage = ({ options, onReturn }) => {
   const [messages, setMessages] = useState([]);
   const [speaker, setSpeaker] = useState("bot");
+  const [textVisible, setTextVisible] = useState(false);
 
   useEffect(() => {
     if (options.scenario && options.languageCode) {
@@ -74,13 +75,17 @@ const ConversationPage = ({ options, onReturn }) => {
     }
   }, [options]);
 
+  const toggleTextVisible = () => {
+    setTextVisible(!textVisible);
+  };
+
   const updateAudio = async (audioBlob) => {
     setMessages([
       ...messages,
       {
         speaker: "User",
         audio: URL.createObjectURL(audioBlob),
-        text: "There is no text",
+        text: "Waiting to transcribe user text...",
       },
     ]);
     setSpeaker("bot");
@@ -93,8 +98,11 @@ const ConversationPage = ({ options, onReturn }) => {
       console.log(base64);
       const responseData = sendAudioToServer(base64, options.languageCode);
       responseData.then((data) => {
-        console.log("transcript");
-        console.log(data.transcript);
+        setMessages((prev) => {
+          let messages = [...prev];
+          messages[messages.length - 1].text = data.transcript;
+          return messages;
+        });
         getAudioFromServer(data.transcript, options.languageCode).then(
           (audioURL) => {
             setMessages((prev) => [
@@ -120,10 +128,12 @@ const ConversationPage = ({ options, onReturn }) => {
         options={options}
         restartConversation={onReturn}
         downloadConversation={downloadConversation}
+        toggleTextVisible={toggleTextVisible}
+        textVisible={textVisible}
       />
 
       <div className="flex flex-col items-center">
-        <ConversationHistory messages={messages} />
+        <ConversationHistory messages={messages} textVisible={textVisible} />
 
         <div className="bg-gray-100 p-4 w-96 flex flex-col items-center rounded-xl">
           {speaker === "user" ? (
