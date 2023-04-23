@@ -60,7 +60,9 @@ def chatbot(text):
     print(chatbot_response)
     # parse response
     response_text = chatbot_response.choices[0].text.strip()
-    output = response_text.replace("\n", " ").split(":")[1].strip()
+    output = response_text.replace("\n", " ")
+    if ":" in output:
+        output = output.split(":")[1].strip()
     conversation.append(output)
 
     return output

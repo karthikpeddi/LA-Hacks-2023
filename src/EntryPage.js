@@ -6,7 +6,7 @@ import {
   PaperAirplaneIcon,
   ArrowRightIcon,
 } from "@heroicons/react/20/solid";
-import { US, MX, FR, DE, IT, CN, JP } from "country-flag-icons/react/3x2";
+import { US, MX, FR, DE, IT, CN, JP, IN } from "country-flag-icons/react/3x2";
 import "./EntryPage.css";
 import SpeedMenu from "./SpeedMenu";
 import image from "./dist/landscape.webp";
@@ -19,6 +19,7 @@ const languages = [
   { flag: IT, name: "Italian", code: "it-IT" },
   { flag: CN, name: "Chinese (Mandarin)", code: "zh (cmn-Hans-CN)" },
   { flag: JP, name: "Japanese", code: "ja-JP" },
+  { flag: IN, name: "Hindi", code: "hi-IN" },
 ];
 
 const scenarioTexts = [
