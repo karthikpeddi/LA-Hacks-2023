@@ -1,8 +1,7 @@
 import AudioRecorder from "./AudioRecorder";
 import ConversationInfo from "./ConversationInfo";
 import ConversationHistory from "./ConversationHistory";
-//import { get, post } from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 async function sendAudioToServer(base64, language) {
   const data = {
@@ -60,7 +59,20 @@ async function getAudioFromServer(text, language) {
 
 const ConversationPage = ({ options, onReturn }) => {
   const [messages, setMessages] = useState([]);
-  const [speaker, setSpeaker] = useState("user");
+  const [speaker, setSpeaker] = useState("bot");
+
+  useEffect(() => {
+    if (options.scenario && options.languageCode) {
+      getAudioFromServer(options.scenario, options.languageCode).then(
+        (audioURL) => {
+          setMessages([
+            { speaker: "Bot", text: options.scenario, audio: audioURL },
+          ]);
+          setSpeaker("user");
+        }
+      );
+    }
+  }, [options]);
 
   const updateAudio = async (audioBlob) => {
     setMessages([
@@ -96,10 +108,6 @@ const ConversationPage = ({ options, onReturn }) => {
     };
 
     console.log(audioBlob);
-  };
-
-  const addBotMessage = (message) => {
-    setMessages([...messages]);
   };
 
   const downloadConversation = () => {
