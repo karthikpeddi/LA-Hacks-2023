@@ -49,6 +49,17 @@ def chatbot(text):
 
     return output
 
+# take in language and conversation[-1]
+def hint(language, text):
+    hint_response = openai.Completion.create(
+        engine = "text-davinci-003", 
+        prompt = "How could I respond to the following in" + language + ": " + text, 
+        temperature = 0.5, 
+        max_tokens = 40, 
+        n = 1
+    )
+    response_text = hint_response.choices[0].text.strip()
+    return response_text.replace("\n", " ")
 
 app = Flask(__name__)
 CORS(app)
