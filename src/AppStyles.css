@@ -41,3 +41,7 @@
   top: -100%;
   transition: top 300ms ease-in-out;
 }
+
+html {
+  background-color: #f9fafb;
+}

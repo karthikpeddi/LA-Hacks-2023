@@ -19,7 +19,7 @@ with open(file, 'r') as f:
 # inputs all strings
 def preamble(language_code, preamble_speaker, preamble_background):
     conversation.clear()
-    prompt_text = f"You are a {preamble_speaker} who only speaks {lang_code_mapping[language_code]}. {preamble_background}"
+    prompt_text = f"Respond like a {preamble_speaker} who only speaks {lang_code_mapping[language_code]}. {preamble_background}"
     if "English" not in lang_code_mapping[language_code]:
         prompt_text += "Do not speak English. "
     prompt_text += "Keep your responses concise."
@@ -39,9 +39,19 @@ def preamble(language_code, preamble_speaker, preamble_background):
 
 def chatbot(text):
     conversation.append(text)
+
+    # Construct proper conversation
+    prompt = ""
+    prompt += f"Background: {conversation[0]}\n"
+    for i, message in enumerate(conversation):
+        if i % 2 == 1:
+            prompt += f"You: {message}"
+        else:
+            prompt += f"User: {message}"
+
     chatbot_response = openai.Completion.create(
         engine = "text-davinci-003", 
-        prompt = "\n".join(conversation) + "\n",
+        prompt = prompt,
         temperature = 0.5, 
         max_tokens = 60, 
         n = 1
@@ -50,16 +60,16 @@ def chatbot(text):
     print(chatbot_response)
     # parse response
     response_text = chatbot_response.choices[0].text.strip()
-    output = response_text.replace("\n", " ")
+    output = response_text.replace("\n", " ").split(":")[1].strip()
     conversation.append(output)
 
     return output
 
 # take in language and conversation[-1]
-def hint(language, text):
+def hint(language_code, text):
     hint_response = openai.Completion.create(
         engine = "text-davinci-003", 
-        prompt = "How could I respond to the following in" + language + ": " + text, 
+        prompt = f'Respond to the following in {lang_code_mapping[language_code]}: {text}', 
         temperature = 0.5, 
         max_tokens = 40, 
         n = 1
@@ -176,6 +186,16 @@ def first_setup():
 def exit_conversation_context():
     conversation.clear()
     return "Success", 200
+
+@app.route("/hint", methods=["POST"])
+@cross_origin()
+def resolve_hint():
+    language_code = request.json.get('languageCode', 'en-US')
+    text = request.json.get('text', '')
+
+    return {
+        'hint': hint(language_code, text)
+    }
 
 
 if __name__ == '__main__':

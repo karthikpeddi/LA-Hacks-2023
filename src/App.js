@@ -37,7 +37,7 @@ function App() {
   };
 
   return (
-    <div className="App bg-gray-50">
+    <div className="App">
       <TransitionGroup>
         {currentPage === "entry" && (
           <CSSTransition
