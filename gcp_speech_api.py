@@ -131,7 +131,7 @@ def first_setup():
     audio_file.seek(0)
 
     return send_file(
-        audio_file, mimetype='audio/wav', as_attachment=True, attachment_filename='output.wav'
+        audio_file, mimetype='audio/mpeg', as_attachment=True, attachment_filename='output.mp3'
     )
 
 @app.route("/clear",methods=["POST"])
