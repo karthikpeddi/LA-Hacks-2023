@@ -8,11 +8,12 @@ const b64toBlob = async (base64, type = "audio/mpeg") => {
   return res.blob();
 };
 
-const setupConversation = async (speaker, background, languageCode) => {
+const setupConversation = async (speaker, background, languageCode, speed) => {
   const data = {
     speaker: speaker,
     background: background,
     language: languageCode,
+    speed: speed,
   };
 
   try {
@@ -40,10 +41,11 @@ const setupConversation = async (speaker, background, languageCode) => {
   }
 };
 
-const converseWithServer = async (base64, languageCode) => {
+const converseWithServer = async (base64, languageCode, speed) => {
   const data = {
     audio: base64,
     language: languageCode,
+    speed: speed,
   };
 
   // Send the POST request to the Flask server as a webm base64
@@ -86,7 +88,8 @@ const ConversationPage = ({ options, onReturn }) => {
       setupConversation(
         options.speaker,
         options.background,
-        options.languageCode
+        options.languageCode,
+        options.speed
       ).then(({ audioURL, transcript }) => {
         setMessages([{ speaker: "Bot", audio: audioURL }]);
         setTranscripts([transcript]);
@@ -120,18 +123,8 @@ const ConversationPage = ({ options, onReturn }) => {
     reader.readAsDataURL(audioBlob);
     reader.onloadend = function () {
       const base64 = reader.result.split(",")[1];
-      converseWithServer(base64, options.languageCode).then(
+      converseWithServer(base64, options.languageCode, options.speed).then(
         ({ audioURL, botTranscript, userTranscript }) => {
-          // setMessages((prev) => {
-          //   const messages = [...prev];
-          //   let lastUserMessage = { ...messages[messages.length - 1] };
-          //   lastUserMessage.text = userTranscript;
-          //   messages[messages.length - 1] = lastUserMessage;
-          //   return [
-          //     ...messages,
-          //     { speaker: "Bot", text: botTranscript, audio: audioURL },
-          //   ];
-          // });
           setMessages((prev) => [...prev, { speaker: "Bot", audio: audioURL }]);
           setTranscripts((prev) => [
             ...prev.slice(0, -1),

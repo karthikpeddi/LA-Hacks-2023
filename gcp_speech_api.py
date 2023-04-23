@@ -20,7 +20,7 @@ with open(file, 'r') as f:
 def preamble(language_code, preamble_speaker, preamble_background):
     conversation.clear()
     prompt_text = f"You are a {preamble_speaker} who only speaks {lang_code_mapping[language_code]}. {preamble_background}"
-    if lang_code_mapping[language_code] != "English":
+    if "English" not in lang_code_mapping[language_code]:
         prompt_text += "Do not speak English. "
     prompt_text += "Keep your responses concise."
     print(prompt_text)
@@ -115,8 +115,12 @@ def chat():
         language_code=language_code,
         ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
     )
+
+    print("speed:", float(data['speed']))
+    # Incorporate speaking speed
     audio_config = texttospeech.AudioConfig(
-        audio_encoding=texttospeech.AudioEncoding.MP3
+        audio_encoding=texttospeech.AudioEncoding.MP3,
+        speaking_rate=float(data['speed'])
     )
 
     response = texttospeech_client.synthesize_speech(
@@ -132,20 +136,13 @@ def chat():
         "botTranscript": response_chat_gpt
     }
 
-    response = send_file(
-        audio_file, mimetype='audio/mpeg', as_attachment=True, attachment_filename='output.mp3'
-    )
-    response.set_cookie('x-user-transcript', transcript)
-    response.set_cookie('x-bot-transcript', response_chat_gpt)
-
-    return response
-
 @app.route("/setup",methods=['POST'])
 @cross_origin()
 def first_setup():
     preamble_speaker = request.json.get("speaker", "")
     preamble_background = request.json.get("background", "")
     language_code = request.json.get("language", "en-US")
+    speed = request.json.get("speed", "1")
 
     output = preamble(language_code, preamble_speaker, preamble_background)
     input_text = texttospeech.SynthesisInput(text=output)
@@ -153,8 +150,11 @@ def first_setup():
         language_code=language_code,
         ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
     )
+
+    print("speed:", float(speed))
     audio_config = texttospeech.AudioConfig(
-        audio_encoding=texttospeech.AudioEncoding.LINEAR16
+        audio_encoding=texttospeech.AudioEncoding.MP3,
+        speaking_rate=float(speed)
     )
 
     response = texttospeech_client.synthesize_speech(
@@ -170,13 +170,6 @@ def first_setup():
         "audio": base64.b64encode(response.audio_content).decode('utf-8'),
         "botTranscript": output,
     }
-
-    response = send_file(
-        audio_file, mimetype='audio/mpeg', as_attachment=True, attachment_filename='output.mp3'
-    )
-    response.set_cookie('x-bot-transcript', output)
-
-    return response
 
 @app.route("/clear",methods=["POST"])
 @cross_origin()

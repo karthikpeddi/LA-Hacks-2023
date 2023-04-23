@@ -8,6 +8,7 @@ import {
 } from "@heroicons/react/20/solid";
 import { US, MX, FR, DE, IT, CN, JP } from "country-flag-icons/react/3x2";
 import "./EntryPage.css";
+import SpeedMenu from "./SpeedMenu";
 import image from "./dist/landscape.webp";
 
 const languages = [
@@ -45,6 +46,8 @@ const EntryPage = ({ onOptionSelect, imageVisible }) => {
     name: "Select a language",
   });
 
+  const [selectedSpeed, setSelectedSpeed] = useState(1.0);
+
   const [speaker, setSpeaker] = useState("");
   const [background, setBackground] = useState("");
 
@@ -59,6 +62,10 @@ const EntryPage = ({ onOptionSelect, imageVisible }) => {
   const handlePremadeScenario = (scenario) => {
     setSpeaker(scenario.speaker);
     setBackground(scenario.background);
+  };
+
+  const handleSpeedChange = (target) => {
+    setSelectedSpeed(target);
   };
 
   return (
@@ -159,7 +166,7 @@ const EntryPage = ({ onOptionSelect, imageVisible }) => {
             <textarea
               id="scenario"
               name="scenario"
-              rows="5"
+              rows="3"
               className="mt-2 block w-full max-w-md bg-white resize-none focus:bg-white focus:ring-indigo-500 focus:border-indigo-500
             border border-gray-300 rounded-md shadow-sm py-3 px-4 text-sm text-gray-900 placeholder-gray-400"
               placeholder="Enter your scenario here..."
@@ -180,7 +187,7 @@ const EntryPage = ({ onOptionSelect, imageVisible }) => {
               {scenarioTexts.map((scenario, index) => (
                 <button
                   className="w-full py-2 px-4 text-base duration-100 flex items-center
-                    rounded bg-gray-200 hover:bg-green-800 hover:text-white"
+                    rounded bg-gray-200 hover:bg-amber-700 hover:text-white"
                   onClick={() => handlePremadeScenario(scenario)}
                   key={`example${index}`}
                 >
@@ -196,24 +203,36 @@ const EntryPage = ({ onOptionSelect, imageVisible }) => {
           </div>
         </div>
 
-        <div>
-          <button
-            type="submit"
-            className={`mt-12 bg-blue-700 hover:duration-100 enabled:hover:bg-blue-800 text-white font-semibold text-lg py-2 px-4 rounded inline-flex flex items-center
-            btn-slide-up ${speaker === "" ? "" : "visible"}`}
-            onClick={() => {
-              onOptionSelect({
-                language: selected.name,
-                languageCode: selected.code,
-                flag: selected.flag,
-                speaker: speaker,
-                background: background,
-              });
-            }}
-          >
-            <PaperAirplaneIcon className="w-4 h-4 mr-2" />
-            <span>Start Chatting!</span>
-          </button>
+        <div
+          className={`mt-8 flex flex-col items-center btn-slide-up ${
+            speaker === "" ? "" : "visible"
+          }`}
+        >
+          <div className="flex items-center">
+            <span className="font-medium">Speaking speed:</span>
+            <div className="ml-2 flex items-center justify-center">
+              <SpeedMenu onSelectedSpeed={handleSpeedChange} />
+            </div>
+          </div>
+          <div>
+            <button
+              type="submit"
+              className="mt-6 bg-blue-700 duration-100 enabled:hover:bg-blue-800 text-white font-semibold text-lg py-2 px-4 rounded inline-flex flex items-center"
+              onClick={() => {
+                onOptionSelect({
+                  language: selected.name,
+                  languageCode: selected.code,
+                  flag: selected.flag,
+                  speaker: speaker,
+                  background: background,
+                  speed: selectedSpeed,
+                });
+              }}
+            >
+              <PaperAirplaneIcon className="w-4 h-4 mr-2" />
+              <span>Start Chatting!</span>
+            </button>
+          </div>
         </div>
       </div>
       <div className="right-half">
