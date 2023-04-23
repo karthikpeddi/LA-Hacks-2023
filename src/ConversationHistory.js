@@ -11,8 +11,9 @@ const ConversationHistory = ({ messages }) => {
             className="mb-4 flex items-center gap-x-2"
             key={`message:${index}`}
           >
-            <span className="font-bold">User:</span>
-            <audio src={message} controls></audio>
+            <span className="font-bold">{message.speaker}:</span>
+            <audio src={message.audio} controls></audio>
+            <h1 className="font-bold text-xl">{message.text}</h1>
           </div>
         );
       })}

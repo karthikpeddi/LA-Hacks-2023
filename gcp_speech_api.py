@@ -49,8 +49,9 @@ def audio_to_text():
 
 @app.route('/text-to-speech', methods=['POST'])
 def text_to_speech():
-    text = request.form['text']
-    language_code = request.form.get('language', 'en-US')
+    data = request.get_json()
+    text = data['text']
+    language_code = data.get('language', 'en-US')
 
     input_text = texttospeech.SynthesisInput(text=text)
     voice = texttospeech.VoiceSelectionParams(
@@ -62,7 +63,9 @@ def text_to_speech():
     )
 
     response = texttospeech_client.synthesize_speech(
-        input=input_text, voice=voice, audio_config=audio_config
+        input=input_text,
+        voice=voice,
+        audio_config=audio_config
     )
 
     audio_file = BytesIO(response.audio_content)

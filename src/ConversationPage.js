@@ -31,11 +31,47 @@ async function sendAudioToServer(base64, language) {
   }
 }
 
+async function getAudioFromServer(text, language) {
+  const data = {
+    text: text,
+    language: language,
+  };
+
+  try {
+    const response = await fetch("http://127.0.0.1:5000/text-to-speech", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      const audioBlob = await response.blob();
+      const audioURL = URL.createObjectURL(audioBlob);
+      return audioURL;
+    } else {
+      console.error("Error in sending the request:", response.statusText);
+    }
+  } catch (error) {
+    console.error("Error in sending the request:", error);
+  }
+}
+
 const ConversationPage = ({ options, onReturn }) => {
   const [messages, setMessages] = useState([]);
+  const [speaker, setSpeaker] = useState("user");
 
   const updateAudio = async (audioBlob) => {
-    setMessages([...messages, URL.createObjectURL(audioBlob)]);
+    setMessages([
+      ...messages,
+      {
+        speaker: "User",
+        audio: URL.createObjectURL(audioBlob),
+        text: "There is no text",
+      },
+    ]);
+    setSpeaker("bot");
 
     // Convert blob audio to base64
     const reader = new FileReader();
@@ -44,10 +80,26 @@ const ConversationPage = ({ options, onReturn }) => {
       const base64 = reader.result.split(",")[1];
       console.log(base64);
       const responseData = sendAudioToServer(base64, options.languageCode);
-      console.log(responseData);
+      responseData.then((data) => {
+        console.log("transcript");
+        console.log(data.transcript);
+        getAudioFromServer(data.transcript, options.languageCode).then(
+          (audioURL) => {
+            setMessages((prev) => [
+              ...prev,
+              { speaker: "Bot", text: data.transcript, audio: audioURL },
+            ]);
+            setSpeaker("user");
+          }
+        );
+      });
     };
 
     console.log(audioBlob);
+  };
+
+  const addBotMessage = (message) => {
+    setMessages([...messages]);
   };
 
   const downloadConversation = () => {
@@ -62,10 +114,21 @@ const ConversationPage = ({ options, onReturn }) => {
         downloadConversation={downloadConversation}
       />
 
-      <ConversationHistory messages={messages} />
+      <div className="flex flex-col items-center">
+        <ConversationHistory messages={messages} />
 
-      <div className="bg-gray-100 h-1/6 p-4 flex flex-col items-center justify-center">
-        <AudioRecorder updateAudio={updateAudio} />
+        <div className="bg-gray-100 p-4 w-96 flex flex-col items-center rounded-xl">
+          {speaker === "user" ? (
+            <>
+              <h1 className="mb-4 text-xl font-bold">
+                It's your turn to speak.
+              </h1>
+              <AudioRecorder updateAudio={updateAudio} />
+            </>
+          ) : (
+            <h1 className="mb-4 text-xl font-bold">Waiting for bot...</h1>
+          )}
+        </div>
       </div>
     </div>
   );
