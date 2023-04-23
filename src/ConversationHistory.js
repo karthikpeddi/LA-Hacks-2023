@@ -3,7 +3,7 @@ const ConversationHistory = ({ messages, textVisible }) => {
     <div className="flex flex-col items-center flex-grow mx-8 p-4">
       {messages.map((message, index) => {
         return (
-          <div className="flex flex-col items-center gap-y-2">
+          <div className="flex items-center gap-x-4">
             <div
               className="mb-4 flex items-center gap-x-2"
               key={`message:${index}`}
