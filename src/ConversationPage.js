@@ -212,7 +212,7 @@ const ConversationPage = ({ options, onReturn }) => {
               )}
             </>
           ) : (
-            <h1 className="text-xl font-bold">Waiting for bot...</h1>
+            <h1 className="text-xl font-bold">Waiting for Sakhi...</h1>
           )}
         </div>
       </div>

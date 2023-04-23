@@ -123,7 +123,7 @@ def chat():
     input_text = texttospeech.SynthesisInput(text=response_chat_gpt)
     voice = texttospeech.VoiceSelectionParams(
         language_code=language_code,
-        ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
+        ssml_gender=texttospeech.SsmlVoiceGender.FEMALE
     )
 
     print("speed:", float(data['speed']))
@@ -158,7 +158,7 @@ def first_setup():
     input_text = texttospeech.SynthesisInput(text=output)
     voice = texttospeech.VoiceSelectionParams(
         language_code=language_code,
-        ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
+        ssml_gender=texttospeech.SsmlVoiceGender.FEMALE
     )
 
     print("speed:", float(speed))

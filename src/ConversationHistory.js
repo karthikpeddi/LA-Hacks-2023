@@ -13,12 +13,16 @@ const ConversationHistory = ({ messages, transcripts, textVisible }) => {
               className="mb-4 flex items-center gap-x-2"
               key={`message:${index}`}
             >
-              <span className="font-bold">{message.speaker}:</span>
+              <span className="font-bold">
+                {message.speaker === "user" ? "You" : "Sakhi"}:
+              </span>
               <audio className="block" src={message.audio} controls></audio>
             </div>
             {textVisible ? (
               <h1 className="font-normal mb-4">
-                <span className="font-bold">{message.speaker}:</span>{" "}
+                <span className="font-bold">
+                  {message.speaker === "user" ? "You" : "Sakhi"}:
+                </span>{" "}
                 {transcripts[index]}
               </h1>
             ) : null}

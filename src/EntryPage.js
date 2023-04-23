@@ -47,7 +47,6 @@ const EntryPage = ({ onOptionSelect, imageVisible }) => {
   });
 
   const [selectedSpeed, setSelectedSpeed] = useState(1.0);
-
   const [speaker, setSpeaker] = useState("");
   const [background, setBackground] = useState("");
 
@@ -70,11 +69,12 @@ const EntryPage = ({ onOptionSelect, imageVisible }) => {
 
   return (
     <div className="flex">
-      <div className="flex flex-col flex-grow items-center p-16 left-half shadow-xl">
-        <h1 className="text-3xl font-bold">
-          The best way to learn a new language.
-        </h1>
-        <div className="mt-8">
+      <div className="flex flex-col flex-grow items-center px-16 pb-16 pt-12 left-half shadow-xl">
+        <h1 className="text-3xl font-bold">Say hi to Sakhi! 👋</h1>
+        <h3 className="text-base font-medium mt-2">
+          The best way to learn and practice a new language.
+        </h3>
+        <div className="mt-4">
           <Listbox
             as="div"
             value={selected}
