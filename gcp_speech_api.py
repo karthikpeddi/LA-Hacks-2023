@@ -22,7 +22,7 @@ def preamble(language_code, preamble_speaker, preamble_background):
     prompt_text = f"Respond like a {preamble_speaker} who only speaks {lang_code_mapping[language_code]}. {preamble_background}"
     if "English" not in lang_code_mapping[language_code]:
         prompt_text += "Do not speak English. "
-    prompt_text += "Keep your responses concise."
+    prompt_text += "Keep your responses concise. Be kind and helpful."
     print(prompt_text)
     conversation.append(prompt_text + "\n")
     preamble_output = openai.Completion.create(
