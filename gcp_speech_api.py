@@ -17,9 +17,13 @@ file = "lang_code_name.json"
 with open(file, 'r') as f:
     lang_code_mapping = json.load(f)
 # inputs all strings
-def preamble(language, preamble_text):
-    conversation=[]
-    prompt_text = "Can you pretend to be a " + preamble_text + " speaking " + lang_code_mapping[language] + " ?"
+def preamble(language_code, preamble_speaker, preamble_background):
+    conversation.clear()
+    prompt_text = f"You are a {preamble_speaker} who only speaks {lang_code_mapping[language_code]}. {preamble_background}"
+    if lang_code_mapping[language_code] != "English":
+        prompt_text += "Do not speak English. "
+    prompt_text += "Keep your responses concise."
+    print(prompt_text)
     conversation.append(prompt_text + "\n")
     preamble_output = openai.Completion.create(
         engine = "text-davinci-003", 
@@ -42,6 +46,8 @@ def chatbot(text):
         max_tokens = 60, 
         n = 1
     )
+
+    print(chatbot_response)
     # parse response
     response_text = chatbot_response.choices[0].text.strip()
     output = response_text.replace("\n", " ")
@@ -60,6 +66,7 @@ speech_client = speech.SpeechClient()
 texttospeech_client = texttospeech.TextToSpeechClient()
 
 @app.route('/chat', methods=['POST'])
+@cross_origin()
 def chat():
     data = request.get_json()
 
@@ -87,7 +94,10 @@ def chat():
     for result in response.results:
         transcript += result.alternatives[0].transcript
     
+    print("TRANSCRIPT:", transcript)
     response_chat_gpt = chatbot(transcript)
+    print("CHATGPT RESPONSE:", response_chat_gpt)
+    print("CONVERSATIONS:", conversation)
 
     input_text = texttospeech.SynthesisInput(text=response_chat_gpt)
     voice = texttospeech.VoiceSelectionParams(
@@ -105,18 +115,31 @@ def chat():
     audio_file = BytesIO(response.audio_content)
     audio_file.seek(0)
 
-    return send_file(
+    return {
+        "audio": base64.b64encode(response.audio_content).decode('utf-8'),
+        "userTranscript": transcript,
+        "botTranscript": response_chat_gpt
+    }
+
+    response = send_file(
         audio_file, mimetype='audio/mpeg', as_attachment=True, attachment_filename='output.mp3'
     )
+    response.set_cookie('x-user-transcript', transcript)
+    response.set_cookie('x-bot-transcript', response_chat_gpt)
+
+    return response
 
 @app.route("/setup",methods=['POST'])
+@cross_origin()
 def first_setup():
-    preamble_text = request.form['preamble']
-    language = request.form['language']
-    output = preamble(language,preamble_text)
+    preamble_speaker = request.json.get("speaker", "")
+    preamble_background = request.json.get("background", "")
+    language_code = request.json.get("language", "en-US")
+
+    output = preamble(language_code, preamble_speaker, preamble_background)
     input_text = texttospeech.SynthesisInput(text=output)
     voice = texttospeech.VoiceSelectionParams(
-        language_code=language,
+        language_code=language_code,
         ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
     )
     audio_config = texttospeech.AudioConfig(
@@ -130,13 +153,24 @@ def first_setup():
     audio_file = BytesIO(response.audio_content)
     audio_file.seek(0)
 
-    return send_file(
+    print("conversations:", conversation)
+
+    return {
+        "audio": base64.b64encode(response.audio_content).decode('utf-8'),
+        "botTranscript": output,
+    }
+
+    response = send_file(
         audio_file, mimetype='audio/mpeg', as_attachment=True, attachment_filename='output.mp3'
     )
+    response.set_cookie('x-bot-transcript', output)
+
+    return response
 
 @app.route("/clear",methods=["POST"])
+@cross_origin()
 def exit_conversation_context():
-    conversation = []
+    conversation.clear()
     return "Success", 200
 
 

@@ -1,0 +1,11 @@
+.single-message:last-child {
+  margin-top: 1rem;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.single-message:not(:last-child) audio {
+  width: 266px;
+  height: 48px;
+  display: block;
+}

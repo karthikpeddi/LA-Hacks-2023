@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/20/solid";
 import { US, MX, FR, DE, IT, CN, JP } from "country-flag-icons/react/3x2";
 import "./EntryPage.css";
-import ExtraOptions from "./ExtraOptions";
+import image from "./dist/landscape.webp";
 
 const languages = [
   { flag: US, name: "English (United States)", code: "en-US" },
@@ -21,35 +21,53 @@ const languages = [
 ];
 
 const scenarioTexts = [
-  "You're a waiter and I'm a customer who is ordering from you at a restaurant.",
-  "I'm lost in a new country and I'm asking you for directions to my hotel.",
-  "You're selling souvenirs, and I'd like to buy one from you to take home.",
+  {
+    description: "Practice ordering from a waiter at a restaurant.",
+    speaker: "waiter",
+    background: "I'm a customer who's ordering at a restaurant.",
+  },
+  {
+    description: "Ask for directions back to your hotel.",
+    speaker: "stranger",
+    background:
+      "I'm lost in an unfamiliar country and I need help getting back to my hotel.",
+  },
+  {
+    description: "Buy souvenirs at a gift shop.",
+    speaker: "vendor",
+    background:
+      "I'm interested in some of the souvenirs you're selling and would like to buy some to take home.",
+  },
 ];
 
-const EntryPage = (props) => {
+const EntryPage = ({ onOptionSelect, imageVisible }) => {
   const [selected, setSelected] = useState({
     name: "Select a language",
   });
 
-  const [scenario, setScenario] = useState("");
+  const [speaker, setSpeaker] = useState("");
+  const [background, setBackground] = useState("");
 
-  const [extraOptionsVisible, setExtraOptionsVisible] = useState(true);
-
-  const handleScenarioChange = (event) => {
-    setScenario(event.target.value);
+  const handleSpeakerChange = (event) => {
+    setSpeaker(event.target.value);
   };
 
-  const handlePremadeScenario = (text) => {
-    setScenario(text);
+  const handleBackgroundChange = (event) => {
+    setBackground(event.target.value);
+  };
+
+  const handlePremadeScenario = (scenario) => {
+    setSpeaker(scenario.speaker);
+    setBackground(scenario.background);
   };
 
   return (
-    <div className="flex items-center p-16">
-      <div className="flex flex-col flex-grow items-center">
+    <div className="flex">
+      <div className="flex flex-col flex-grow items-center p-16 left-half shadow-xl">
         <h1 className="text-3xl font-bold">
           The best way to learn a new language.
         </h1>
-        <div className="mt-12">
+        <div className="mt-8">
           <Listbox
             as="div"
             value={selected}
@@ -108,27 +126,45 @@ const EntryPage = (props) => {
           </Listbox>
         </div>
 
-        <div className={`w-full mt-12 flex flex-col items-center`}>
+        <div className={`w-full mt-8 flex flex-col items-center`}>
           <div
             className={`w-full max-w-md ${
               selected.flag ? "visible" : ""
             } slide-up`}
           >
             <label
+              htmlFor="speaker"
+              className="block text-base font-medium text-gray-700"
+            >
+              I'd like to practice talking to a:
+            </label>
+            <input
+              type="text"
+              id="speaker"
+              name="speaker"
+              rows="5"
+              className="block mb-2 mt-2 w-full max-w-md bg-white resize-none focus:bg-white focus:ring-indigo-500 focus:border-indigo-500
+            border border-gray-300 rounded-md shadow-sm py-2 px-4 text-sm text-gray-900 placeholder:text-gray-400 placeholder:text-italic"
+              placeholder="waiter, taxi driver, gate agent..."
+              onChange={handleSpeakerChange}
+              value={speaker}
+            />
+
+            <label
               htmlFor="scenario"
               className="block text-base font-medium text-gray-700"
             >
-              Now, type in a scenario you'd like to practice...
+              Enter in optional background info for your conversation:
             </label>
             <textarea
               id="scenario"
               name="scenario"
               rows="5"
-              className="mt-1 block w-full max-w-md bg-white resize-none focus:bg-white focus:ring-indigo-500 focus:border-indigo-500
+              className="mt-2 block w-full max-w-md bg-white resize-none focus:bg-white focus:ring-indigo-500 focus:border-indigo-500
             border border-gray-300 rounded-md shadow-sm py-3 px-4 text-sm text-gray-900 placeholder-gray-400"
               placeholder="Enter your scenario here..."
-              onChange={handleScenarioChange}
-              value={scenario}
+              onChange={handleBackgroundChange}
+              value={background}
             ></textarea>
           </div>
 
@@ -137,16 +173,20 @@ const EntryPage = (props) => {
               selected.flag ? "visible" : ""
             } slide-up-delay`}
           >
-            <div className="text-base font-medium text-gray-700 mt-8">
+            <div className="text-base font-medium text-gray-700 mt-6">
               or choose from one of our examples:
             </div>
             <div className="flex flex-col mt-2 gap-y-2">
-              {scenarioTexts.map((text) => (
+              {scenarioTexts.map((scenario, index) => (
                 <button
-                  className="w-full py-2 px-6 text-base duration-100 rounded prompt-btn"
-                  onClick={() => handlePremadeScenario(text)}
+                  className="w-full py-2 px-4 text-base duration-100 flex items-center
+                    rounded bg-gray-200 hover:bg-green-800 hover:text-white"
+                  onClick={() => handlePremadeScenario(scenario)}
+                  key={`example${index}`}
                 >
-                  {text}{" "}
+                  <span className="flex-grow text-left mr-4">
+                    {scenario.description}
+                  </span>{" "}
                   <span>
                     <ArrowRightIcon className="w-4 h-4 inline" />
                   </span>
@@ -159,14 +199,15 @@ const EntryPage = (props) => {
         <div>
           <button
             type="submit"
-            className={`mt-12 bg-blue-700 hover:duration-100 enabled:hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded inline-flex flex items-center
-            btn-slide-up ${scenario === "" ? "" : "visible"}`}
+            className={`mt-12 bg-blue-700 hover:duration-100 enabled:hover:bg-blue-800 text-white font-semibold text-lg py-2 px-4 rounded inline-flex flex items-center
+            btn-slide-up ${speaker === "" ? "" : "visible"}`}
             onClick={() => {
-              props.onOptionSelect({
+              onOptionSelect({
                 language: selected.name,
                 languageCode: selected.code,
                 flag: selected.flag,
-                scenario: scenario,
+                speaker: speaker,
+                background: background,
               });
             }}
           >
@@ -174,6 +215,9 @@ const EntryPage = (props) => {
             <span>Start Chatting!</span>
           </button>
         </div>
+      </div>
+      <div className="right-half">
+        {imageVisible ? <img src={image} className="right-image" /> : null}
       </div>
     </div>
   );

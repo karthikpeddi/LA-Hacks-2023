@@ -8,21 +8,36 @@ import "./AppStyles.css";
 function App() {
   const [currentPage, setCurrentPage] = useState("entry");
   const [selectedOptions, setSelectedOptions] = useState({});
+  const [imageVisible, setImageVisible] = useState(true);
 
   const handleOptionsSelect = (options) => {
     setSelectedOptions(options);
-
-    /* REQUEST TO CHATGPT API -> TEXT TO SPEECH API GOES HERE */
-
     setCurrentPage("conversation");
+    setImageVisible(false);
   };
 
   const handleReturn = () => {
     setCurrentPage("entry");
+
+    // Reset Chatgpt context
+    try {
+      fetch("http://127.0.0.1:5000/clear", {
+        method: "POST",
+      }).then((response) => {
+        if (response.ok) {
+          console.log("Cleared conversation context successfully");
+        } else {
+          console.error("Error in sending the request", response.statusText);
+        }
+      });
+    } catch (error) {
+      console.error("Ending in sending request:", error);
+    }
+    setImageVisible(true);
   };
 
   return (
-    <div className="App">
+    <div className="App bg-gray-50">
       <TransitionGroup>
         {currentPage === "entry" && (
           <CSSTransition
@@ -31,7 +46,10 @@ function App() {
             classNames="slide-entry"
             unmountOnExit
           >
-            <EntryPage onOptionSelect={handleOptionsSelect} />
+            <EntryPage
+              onOptionSelect={handleOptionsSelect}
+              imageVisible={imageVisible}
+            />
           </CSSTransition>
         )}
         {currentPage === "conversation" && (

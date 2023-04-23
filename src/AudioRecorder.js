@@ -36,17 +36,17 @@ const AudioRecorder = ({ updateAudio }) => {
       {!isRecording && (
         <button
           onClick={startRecording}
-          className="bg-red-500 duration-100 hover:bg-red-600 flex items-center text-white font-semibold px-4 py-2 rounded"
+          className="bg-red-500 duration-100 hover:bg-red-600 flex items-center text-white font-semibold px-4 py-2 rounded-md"
         >
           <MicrophoneIcon className="w-5 h-5 mr-2" />
-          Record
+          Start Recording
         </button>
       )}
       {isRecording && (
         <>
           <button
             onClick={stopRecording}
-            className="bg-red-600 duration-100 hover:bg-red-700 flex items-center font-semibold text-white px-4 py-2 rounded"
+            className="bg-red-600 duration-100 hover:bg-red-700 flex items-center font-semibold text-white px-4 py-2 rounded-md"
           >
             <StopIcon className="w-5 h-5 mr-2" />
             Stop

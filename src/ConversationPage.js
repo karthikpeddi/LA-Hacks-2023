@@ -3,15 +3,52 @@ import ConversationInfo from "./ConversationInfo";
 import ConversationHistory from "./ConversationHistory";
 import { useEffect, useState } from "react";
 
-async function sendAudioToServer(base64, language) {
+const b64toBlob = async (base64, type = "audio/mpeg") => {
+  const res = await fetch(`data:${type};base64,${base64}`);
+  return res.blob();
+};
+
+const setupConversation = async (speaker, background, languageCode) => {
+  const data = {
+    speaker: speaker,
+    background: background,
+    language: languageCode,
+  };
+
+  try {
+    const response = await fetch("http://127.0.0.1:5000/setup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      const jsonData = await response.json();
+      const audioBlob = await b64toBlob(jsonData.audio);
+      const audioURL = URL.createObjectURL(audioBlob);
+      return {
+        audioURL: audioURL,
+        transcript: jsonData.botTranscript,
+      };
+    } else {
+      console.error("Error in sending the request", response.statusText);
+    }
+  } catch (error) {
+    console.error("Ending in sending request:", error);
+  }
+};
+
+const converseWithServer = async (base64, languageCode) => {
   const data = {
     audio: base64,
-    language: language,
+    language: languageCode,
   };
 
   // Send the POST request to the Flask server as a webm base64
   try {
-    const response = await fetch("http://127.0.0.1:5000/audio-to-text", {
+    const response = await fetch("http://127.0.0.1:5000/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -20,74 +57,62 @@ async function sendAudioToServer(base64, language) {
     });
 
     if (response.ok) {
-      const data = await response.json();
-      return data;
-    } else {
-      console.error("Error in sending the request:", response.statusText);
-    }
-  } catch (error) {
-    console.error("Error in sending the request:", error);
-  }
-}
-
-async function getAudioFromServer(text, language) {
-  const data = {
-    text: text,
-    language: language,
-  };
-
-  try {
-    const response = await fetch("http://127.0.0.1:5000/text-to-speech", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (response.ok) {
-      const audioBlob = await response.blob();
+      const jsonData = await response.json();
+      const audioBlob = await b64toBlob(jsonData.audio);
       const audioURL = URL.createObjectURL(audioBlob);
-      return audioURL;
+      console.log(jsonData.botTranscript);
+      console.log(jsonData.userTranscript);
+      return {
+        audioURL: audioURL,
+        botTranscript: jsonData.botTranscript,
+        userTranscript: jsonData.userTranscript,
+      };
     } else {
       console.error("Error in sending the request:", response.statusText);
     }
   } catch (error) {
     console.error("Error in sending the request:", error);
   }
-}
+};
 
 const ConversationPage = ({ options, onReturn }) => {
   const [messages, setMessages] = useState([]);
+  const [transcripts, setTranscripts] = useState([]);
   const [speaker, setSpeaker] = useState("bot");
   const [textVisible, setTextVisible] = useState(false);
 
   useEffect(() => {
-    if (options.scenario && options.languageCode) {
-      getAudioFromServer(options.scenario, options.languageCode).then(
-        (audioURL) => {
-          setMessages([
-            { speaker: "Bot", text: options.scenario, audio: audioURL },
-          ]);
-          setSpeaker("user");
-        }
-      );
+    if (options.speaker && options.languageCode) {
+      setupConversation(
+        options.speaker,
+        options.background,
+        options.languageCode
+      ).then(({ audioURL, transcript }) => {
+        setMessages([{ speaker: "Bot", audio: audioURL }]);
+        setTranscripts([transcript]);
+        setSpeaker("user");
+      });
     }
-  }, [options]);
+  }, []);
+
+  useEffect(() => {
+    console.log("component mounted");
+  }, []);
 
   const toggleTextVisible = () => {
     setTextVisible(!textVisible);
   };
 
   const updateAudio = async (audioBlob) => {
-    setMessages([
-      ...messages,
+    setMessages((prev) => [
+      ...prev,
       {
         speaker: "User",
         audio: URL.createObjectURL(audioBlob),
-        text: "Waiting to transcribe user text...",
       },
     ]);
+    setTranscripts((prev) => [...prev, "Waiting to transcribe user text..."]);
+
     setSpeaker("bot");
 
     // Convert blob audio to base64
@@ -95,31 +120,28 @@ const ConversationPage = ({ options, onReturn }) => {
     reader.readAsDataURL(audioBlob);
     reader.onloadend = function () {
       const base64 = reader.result.split(",")[1];
-      console.log(base64);
-      const responseData = sendAudioToServer(base64, options.languageCode);
-      responseData.then((data) => {
-        setMessages((prev) => {
-          let messages = [...prev];
-          messages[messages.length - 1].text = data.transcript;
-          return messages;
-        });
-        getAudioFromServer(data.transcript, options.languageCode).then(
-          (audioURL) => {
-            setMessages((prev) => [
-              ...prev,
-              { speaker: "Bot", text: data.transcript, audio: audioURL },
-            ]);
-            setSpeaker("user");
-          }
-        );
-      });
+      converseWithServer(base64, options.languageCode).then(
+        ({ audioURL, botTranscript, userTranscript }) => {
+          // setMessages((prev) => {
+          //   const messages = [...prev];
+          //   let lastUserMessage = { ...messages[messages.length - 1] };
+          //   lastUserMessage.text = userTranscript;
+          //   messages[messages.length - 1] = lastUserMessage;
+          //   return [
+          //     ...messages,
+          //     { speaker: "Bot", text: botTranscript, audio: audioURL },
+          //   ];
+          // });
+          setMessages((prev) => [...prev, { speaker: "Bot", audio: audioURL }]);
+          setTranscripts((prev) => [
+            ...prev.slice(0, -1),
+            userTranscript,
+            botTranscript,
+          ]);
+          setSpeaker("user");
+        }
+      );
     };
-
-    console.log(audioBlob);
-  };
-
-  const downloadConversation = () => {
-    console.log("Downloaded conversation");
   };
 
   return (
@@ -127,24 +149,25 @@ const ConversationPage = ({ options, onReturn }) => {
       <ConversationInfo
         options={options}
         restartConversation={onReturn}
-        downloadConversation={downloadConversation}
         toggleTextVisible={toggleTextVisible}
         textVisible={textVisible}
       />
 
       <div className="flex flex-col items-center">
-        <ConversationHistory messages={messages} textVisible={textVisible} />
+        <ConversationHistory
+          messages={messages}
+          transcripts={transcripts}
+          textVisible={textVisible}
+        />
 
-        <div className="bg-gray-100 p-4 w-96 flex flex-col items-center rounded-xl">
+        <div className="bg-gray-100 p-4 w-96 flex flex-col items-center rounded-xl shadow-md">
           {speaker === "user" ? (
             <>
-              <h1 className="mb-4 text-xl font-bold">
-                It's your turn to speak.
-              </h1>
+              <h1 className="mb-4 text-xl font-bold">Your turn!</h1>
               <AudioRecorder updateAudio={updateAudio} />
             </>
           ) : (
-            <h1 className="mb-4 text-xl font-bold">Waiting for bot...</h1>
+            <h1 className="text-xl font-bold">Waiting for bot...</h1>
           )}
         </div>
       </div>
